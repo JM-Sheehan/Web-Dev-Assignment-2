@@ -1,14 +1,13 @@
 import bcrypt from 'bcrypt-nodejs';
 import mongoose from 'mongoose';
-
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
     username: { type: String, unique: true, required: true },
     password: { type: String, required: true },
-    favourites: [{type: mongoose.Schema.Types.ObjectId}],
-    watchList: [{type: mongoose.Schema.Types.ObjectId}],
-    following: [{type: mongoose.Schema.Types.ObjectId}]
+    favourites: [{type: mongoose.Schema.Types.ObjectId, ref: 'Movies'}],
+    watchList: [{type: mongoose.Schema.Types.ObjectId, ref: 'Movies'}],
+    following: [{type: mongoose.Schema.Types.ObjectId, ref: 'People'} ]
 });
 
 UserSchema.statics.findByUserName = function (username) {

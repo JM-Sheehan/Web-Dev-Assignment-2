@@ -15,6 +15,11 @@ router.get('/upcoming', (req, res, next ) => {
     res.status(200).send(upcoming)).catch(next);
 });
 
+router.get('/rated', (req, res, next ) => {
+  movieModel.find().sort({vote_average: -1}).then(rated => 
+    res.status(200).send(rated)).catch(next);
+});
+
 router.get('/:id', (req, res, next) => {
   const id = parseInt(req.params.id);
   movieModel.findByMovieDBId(id).then(movie => res.status(200).send(movie)).catch(next);

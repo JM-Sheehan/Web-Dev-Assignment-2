@@ -69,24 +69,14 @@ router.post('/:userName/favourites', async (req, res, next) => {
   res.status(201).json(movie).catch(next);
 });
 
-router.delete('/:userName/favourites', async (req, res, next) => {
-  const newFavourite = req.body.id;
-  const userName = req.params.userName;
-  const movie = await movieModel.findByMovieDBId(newFavourite);
-  const user = await User.findByUserName(userName);
-  await user.favourites.splice(movie._id, 1);
-  await user.save();
-  res.status(201).json(user).catch(next);
-});
 
 
-router.get('/:userName/favourites', async(req, res, next) => {
+router.get('/:userName/favourites', async (req, res, next) => {
   const userName = req.params.userName;
-  const user = await User.findByUserName(userName);
-  // User.findByUserName(userName).populate('favourites').then(
-  //   user => res.status(200).send(user.favourites)
-  // ).catch(next);
-  res.status(201).json(user.favourites).catch(next);
+  await User.findByUserName(userName).then(
+    user => res.status(200).send(user.favourites)
+  ).catch(next);
+  // res.status(201).send(user.favourites).catch(next);
 });
 
 //Watch List Functionallity
@@ -96,17 +86,6 @@ router.post('/:userName/watchList', async (req, res, next) => {
   const movie = await movieModel.findByMovieDBId(toWatch);
   const user = await User.findByUserName(userName);
   await user.watchList.addToSet(movie._id);
-  await user.save();
-
-  res.status(201).json(user).catch(next);
-});
-
-router.delete('/:userName/watchList', async (req, res, next) => {
-  const toWatch = req.body.id;
-  const userName = req.params.userName;
-  const movie = await movieModel.findByMovieDBId(toWatch);
-  const user = await User.findByUserName(userName);
-  await user.watchList.splice(movie._id, 1);
   await user.save();
 
   res.status(201).json(user).catch(next);
@@ -126,30 +105,34 @@ router.post('/:userName/following', async (req, res, next) => {
   const userName = req.params.userName;
   const person = await personModel.findByPersonDBId(follow);
   const user = await User.findByUserName(userName);
-  await user.following.addToSet(person._id);
+  await user.following.addToSet(person);
   await user.save();
 
   res.status(201).json(user).catch(next);
 });
 
-router.get('/:userName/following', (req, res, next) => {
+router.get('/:userName/following', async (req, res, next) => {
   const userName = req.params.userName;
-  User.findByUserName(userName).populate('following').then(
-    user => res.status(201).json(user.following)
+  await User.findByUserName(userName).then(
+    user => res.status(201).send(user.following)
   ).catch(next);
 });
+
+
 
 router.delete('/:userName/following', async(req, res, next) => {
   const userName = req.params.userName;
   const follow = req.body.id;
   const person = await personModel.findByPersonDBId(follow);
   const user = await User.findByUserName(userName);
-
-  await user.following.splice(person._id, 1);
+  for(let i=0; i<user.following.length;i++){
+    if(user.following[i].toString() == person._id.toString()){
+      user.following.splice(i, 1);
+    }
+  }
   await user.save();
 
   res.status(201).json(user).catch(next);
 
 });
-
 export default router;

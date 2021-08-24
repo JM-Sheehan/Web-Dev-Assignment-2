@@ -6,7 +6,10 @@ const router = express.Router();
 router.get('/', (req, res, next) => {
     personModel.find().then(people => res.status(200).send(people)).catch(next);
 });
-
+router.get('/popular', (req, res, next ) => {
+  personModel.find().sort({popularity: -1}).then(popular => 
+    res.status(200).send(popular)).catch(next);
+});
 router.get('/:id', (req, res, next) => {
   const id = parseInt(req.params.id);
   personModel.findByPersonDBId(id).
